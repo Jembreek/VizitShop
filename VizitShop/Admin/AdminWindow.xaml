@@ -1,0 +1,514 @@
+﻿<Window x:Class="VizitShop.AdminWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:VizitShop"
+        Title="VizitShop - Администратор"
+        Height="800" Width="1455"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <Color x:Key="PrimaryColor">#7C4DFF</Color>
+        <Color x:Key="DarkPrimaryColor">#5D36C2</Color>
+        <Color x:Key="AccentColor">#FF4081</Color>
+        <Color x:Key="DarkGray">#212121</Color>
+        <Color x:Key="MediumGray">#757575</Color>
+        <Color x:Key="LightGray">#BDBDBD</Color>
+
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+        <SolidColorBrush x:Key="DarkPrimaryBrush" Color="{StaticResource DarkPrimaryColor}"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+        <SolidColorBrush x:Key="DarkGrayBrush" Color="{StaticResource DarkGray}"/>
+        <SolidColorBrush x:Key="MediumGrayBrush" Color="{StaticResource MediumGray}"/>
+        <SolidColorBrush x:Key="LightGrayBrush" Color="{StaticResource LightGray}"/>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <Style x:Key="CenterAlignStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10 5"/>
+        </Style>
+
+        <Style x:Key="RightAlignStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="Padding" Value="10 5"/>
+        </Style>
+
+        <Style x:Key="CompactButton" TargetType="Button">
+            <Setter Property="Padding" Value="8 4"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinWidth" Value="0"/>
+        </Style>
+
+        <Style x:Key="InfoIconStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Ellipse x:Name="BackgroundCircle" Width="24" Height="24" Fill="#20FFFFFF" Opacity="0"/>
+                            <TextBlock Text="!" FontWeight="Bold" FontSize="14" Foreground="#424242" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <ToolTipService.ToolTip>
+                                <ToolTip x:Name="InfoToolTip" Placement="Bottom" Background="#FFF" BorderBrush="#7C4DFF" BorderThickness="1" HasDropShadow="True">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Brand}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Size, StringFormat='Размер: {0}'}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </ToolTip>
+                            </ToolTipService.ToolTip>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BackgroundCircle" Property="Fill" Value="#107C4DFF"/>
+                                <Setter TargetName="BackgroundCircle" Property="Opacity" Value="1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Help"/>
+        </Style>
+
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12 8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" CornerRadius="6" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource DarkPrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource DarkPrimaryBrush}"/>
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="ProductCardTemplate">
+            <Border Background="White" CornerRadius="12" Margin="10" Width="280" Height="360">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="180"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Style="{StaticResource InfoIconStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8" Panel.ZIndex="1">
+                        <Button.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1"/>
+                        </Button.RenderTransform>
+                    </Button>
+
+                    <Border Grid.Row="0" CornerRadius="12 12 0 0" ClipToBounds="True">
+                        <Image Source="{Binding ImageUrl}" Stretch="UniformToFill">
+                            <Image.Clip>
+                                <RectangleGeometry Rect="0,0,280,180" RadiusX="12" RadiusY="12"/>
+                            </Image.Clip>
+                        </Image>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="12">
+                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Brand}" Foreground="{StaticResource MediumGrayBrush}" Margin="0 4 0 0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                            <TextBlock Text="{Binding Price, StringFormat='{}{0:F0} ₽'}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text="{Binding OldPrice, StringFormat='{}{0:F0} ₽'}" TextDecorations="Strikethrough" Foreground="{StaticResource LightGrayBrush}" Margin="8 0 0 0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="12">
+                        <Button Content="✏️" ToolTip="Редактировать" Style="{StaticResource ModernButton}" Width="40" Height="40" Padding="0" Background="#FFC107" Command="{Binding DataContext.EditProductCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"/>
+                        <Button Content="🗑️" ToolTip="Удалить" Style="{StaticResource ModernButton}" Width="40" Height="40" Padding="0" Margin="8 0 0 0" Background="#F44336" Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"/>
+                        <Button Content="➕" ToolTip="Добавить товар" Style="{StaticResource ModernButton}" Width="40" Height="40" Padding="0" Margin="8 0 0 0" Background="#4CAF50" Foreground="White" Command="{Binding DataContext.AddProductCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#FAFAFA"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0 0 0 2"/>
+            <Setter Property="Padding" Value="8 12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource DarkGrayBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Border Background="{StaticResource PrimaryBrush}" Height="60" VerticalAlignment="Top" CornerRadius="0 0 0 0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <DockPanel>
+                <Image Source="/Images/logo.png" Width="120" Height="120" Margin="5 -30 5 0" DockPanel.Dock="Left"/>
+                <Button Content="✕" 
+                        Width="58" 
+                        Height="59" 
+                        Background="Transparent" 
+                        Foreground="White" 
+                        FontSize="18"
+                        Margin="1267 0 0 0"
+                        FontWeight="SemiBold" 
+                        BorderThickness="0" 
+                        Click="CloseButton_Click" 
+                        Cursor="Hand" 
+                        DockPanel.Dock="Right" RenderTransformOrigin="0.509,0.521">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid>
+                                            <Ellipse x:Name="BackgroundCircle" 
+                                                    Width="24" 
+                                                    Height="24" 
+                                                    Fill="Transparent" 
+                                                    Opacity="0"/>
+                                                            <Ellipse x:Name="RippleEffect" 
+                                                    Width="10" 
+                                                    Height="10" 
+                                                    Fill="#40FFFFFF" 
+                                                    Opacity="0" 
+                                                    RenderTransformOrigin="0.5,0.5">
+                                                <Ellipse.RenderTransform>
+                                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                                </Ellipse.RenderTransform>
+                                            </Ellipse>
+                                            <ContentPresenter x:Name="Content" 
+                                            HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Trigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetName="BackgroundCircle" 
+                                                            Storyboard.TargetProperty="Opacity" 
+                                                            To="0.2" 
+                                                            Duration="0:0:0.2"/>
+                                                            <ColorAnimation Storyboard.TargetName="BackgroundCircle" 
+                                                            Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" 
+                                                            To="#FF5252" 
+                                                            Duration="0:0:0.1"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.EnterActions>
+                                                <Trigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetName="BackgroundCircle" 
+                                                            Storyboard.TargetProperty="Opacity" 
+                                                            To="0" 
+                                                            Duration="0:0:0.3"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.ExitActions>
+                                            </Trigger>
+                                            <EventTrigger RoutedEvent="Button.PreviewMouseDown">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetName="RippleEffect" 
+                                                            Storyboard.TargetProperty="Opacity" 
+                                                            From="0" 
+                                                            To="0.6" 
+                                                            Duration="0:0:0.1"/>
+                                                            <DoubleAnimation Storyboard.TargetName="RippleEffect" 
+                                                            Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleX)" 
+                                                            To="4" 
+                                                            Duration="0:0:0.4"/>
+                                                            <DoubleAnimation Storyboard.TargetName="RippleEffect" 
+                                                            Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleY)" 
+                                                            To="4" 
+                                                            Duration="0:0:0.4"/>
+                                                            <DoubleAnimation Storyboard.TargetName="RippleEffect" 
+                                                            Storyboard.TargetProperty="Opacity" 
+                                                            BeginTime="0:0:0.3" 
+                                                            To="0" 
+                                                            Duration="0:0:0.3"/>
+                                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Content" 
+                                                                        Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)">
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="1"/>
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.1" Value="0.8"/>
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="1.1"/>
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+                                                        </DoubleAnimationUsingKeyFrames>
+                                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Content" 
+                                                                        Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="1"/>
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.1" Value="0.8"/>
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.3" Value="1.1"/>
+                                                            <LinearDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+                                                        </DoubleAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                            <Setter Property="RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </DockPanel>
+        </Border>
+
+        <Grid Margin="0,60,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Width="220" Background="#FAFAFA" CornerRadius="0 0 0 12">
+                <StackPanel Margin="10">
+                    <Button Content="📦 Товары" Style="{StaticResource ModernButton}" Background="Transparent" Foreground="{StaticResource DarkGrayBrush}" HorizontalAlignment="Left" Command="{Binding SwitchToProductsCommand}"/>
+                    <Button Content="📊 История продаж" Style="{StaticResource ModernButton}" Background="Transparent" Foreground="{StaticResource DarkGrayBrush}" HorizontalAlignment="Left" Command="{Binding SwitchToSalesHistoryCommand}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Background="White" CornerRadius="0 0 12 12">
+                <Grid>
+                    <Grid x:Name="MainContentGrid">
+                        <Grid.Resources>
+                            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+                        </Grid.Resources>
+
+                        <Grid Visibility="{Binding IsProductsVisible, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Background="#FFFFFF" CornerRadius="8" Margin="5,10,5,0" VerticalAlignment="Top" Height="35" BorderThickness="1" BorderBrush="#EEEEEE">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                                </Border.Effect>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox x:Name="SearchBox" Grid.Column="0" BorderThickness="0" Background="Transparent" Margin="2 0 35 0" VerticalContentAlignment="Center" FontSize="14" Foreground="#424242" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Поиск по названию...">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+
+                                    <Path Grid.Column="0" Data="M15.5,14h-0.8l-0.3-0.3c1-1.1,1.6-2.6,1.6-4.2C16,5.9,13.1,3,9.5,3S3,5.9,3,9.5S5.9,16,9.5,16 c1.6,0,3.1-0.6,4.2-1.6l0.3,0.3v0.8l5,5l1.5-1.5L15.5,14z M9.5,14C7,14,5,12,5,9.5S7,5,9.5,5S14,7,14,9.5S12,14,9.5,14z" Stretch="Uniform" Fill="#9E9E9E" Width="18" Height="18" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 15 0"/>
+
+                                    <ComboBox Grid.Column="1" Width="120" Margin="10 5" SelectedItem="{Binding SelectedPriceFilter}" ItemsSource="{Binding PriceFilters}" DisplayMemberPath="DisplayName" SelectedValuePath="Value" BorderThickness="0" Background="#F5F5F5" Foreground="#424242" FontSize="13" VerticalContentAlignment="Center">
+                                        <ComboBox.ItemContainerStyle>
+                                            <Style TargetType="ComboBoxItem">
+                                                <Setter Property="Background" Value="White"/>
+                                                <Setter Property="Foreground" Value="#424242"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsHighlighted" Value="True">
+                                                        <Setter Property="Background" Value="#7C4DFF"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ComboBox.ItemContainerStyle>
+                                    </ComboBox>
+
+                                    <Button Grid.Column="2" Content="Сбросить" Width="100" Margin="0 5 10 5" Command="{Binding ResetSearchCommand}" Background="Transparent" Foreground="#7C4DFF" BorderBrush="#7C4DFF" BorderThickness="1" FontSize="13" FontWeight="SemiBold" Cursor="Hand">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border x:Name="border" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="border" Property="Background" Value="#F1E8FF"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <ScrollViewer Grid.Row="1" Margin="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ScrollViewer.Resources>
+                                    <Style TargetType="ScrollBar">
+                                        <Setter Property="Opacity" Value="0"/>
+                                        <Setter Property="Width" Value="0"/>
+                                        <Setter Property="Height" Value="0"/>
+                                    </Style>
+                                </ScrollViewer.Resources>
+
+                                <ItemsControl ItemsSource="{Binding Products}" ItemTemplate="{StaticResource ProductCardTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" Margin="5 0 -65 0"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+
+                        <Grid Visibility="{Binding IsSalesHistoryVisible, Converter={StaticResource BoolToVis}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" CornerRadius="8" Margin="10" Padding="15" Height="50">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.2" Color="#000000"/>
+                                </Border.Effect>
+                                <TextBlock Text="История продаж" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <Border Grid.Row="1" Background="White" CornerRadius="8" Margin="10" Padding="5">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="15" ShadowDepth="0" Opacity="0.1" Color="#000000"/>
+                                </Border.Effect>
+
+                                <DataGrid x:Name="SalesDataGrid" 
+                                          ItemsSource="{Binding AllOrders}" 
+                                          AutoGenerateColumns="False" 
+                                          Background="White" 
+                                          BorderThickness="0" 
+                                          CanUserAddRows="False" 
+                                          HeadersVisibility="Column" 
+                                          RowBackground="Transparent" 
+                                          AlternatingRowBackground="#FAFAFA"
+                                          FontSize="14"
+                                          SelectionMode="Single"
+                                          SelectionUnit="FullRow"
+                                          IsReadOnly="True">
+
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Padding" Value="10 5"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        </Style>
+
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="BorderBrush" Value="#EEEEEE"/>
+                                            <Setter Property="BorderThickness" Value="0 0 0 1"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                                    <Setter Property="BorderBrush" Value="#BBDEFB"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                            <Setter Property="Padding" Value="10 5"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="DataGridCell">
+                                                        <Grid Background="{TemplateBinding Background}">
+                                                            <ContentPresenter VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </DataGrid.Resources>
+
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="№" Binding="{Binding OrderId}" Width="Auto" ElementStyle="{StaticResource CenterAlignStyle}"/>
+
+                                        <DataGridTextColumn Header="Клиент" Binding="{Binding FullName}" Width="*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                                    <Setter Property="Padding" Value="10 5"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTextColumn Header="Дата" Binding="{Binding OrderDate, StringFormat='dd.MM.yyyy HH:mm'}" Width="130" ElementStyle="{StaticResource CenterAlignStyle}"/>
+
+                                        <DataGridTextColumn Header="Сумма" Binding="{Binding TotalAmount, StringFormat='{}{0:N0} ₽'}" Width="80">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource RightAlignStyle}">
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTemplateColumn Header="Действия" Width="115">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Подробнее" 
+                                                            Command="{Binding DataContext.ViewOrderDetailsCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                                            CommandParameter="{Binding}" 
+                                                            Style="{StaticResource ModernButton}" 
+                                                            Width="100"
+                                                            Margin="5 0"
+                                                            ToolTip="Просмотреть детали заказа">
+                                                        <Button.Resources>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="CornerRadius" Value="4"/>
+                                                            </Style>
+                                                        </Button.Resources>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
